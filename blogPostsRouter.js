@@ -31,7 +31,7 @@ router.get('/:id', (req, res) => {
   BlogPosts
     .findById(req.params.id)
     .exec()
-    .then(blogPosts =>res.json(blogPost.apiRepr()))
+    .then(blogPost =>res.json(blogPost.apiRepr()))
     .catch(err => {
       console.error(err);
         res.status(500).json({message: 'Internal server error'})
@@ -50,15 +50,15 @@ router.post('/', jsonParser, (req, res) => {
     }
   }
 
-  BlogPost
+  BlogPosts
     .create({
       title: req.body.title,
       content: req.body.content,
       author: {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName
+        firstName: req.body.author.firstName,
+        lastName: req.body.author.lastName
       },
-      publishDate: req.body.publishDate})
+      publishDate: req.body.publishDate || new Date()})
     .then(
       blogPost => res.status(201).json(blogPost.apiRepr()))
     .catch(err => {
@@ -85,17 +85,17 @@ router.put('/:id', jsonParser, (req, res) => {
     }
   });
 
-  BlogPost
+  BlogPosts
     .findByIdAndUpdate(req.params.id, {$set: toUpdate})
     .exec()
-    .then(blogPost => res.status(204).end())
+    .then(blogPost => res.status(201).json(blogPost.apiRepr()).end())
     .catch(err => res.status(500).json({message: 'Internal server error'}));
 });
 
 
 router.delete('/:id', (req, res) => {
-  BlogPost
-    .findByIdAndUpdate(req.params.id)
+  BlogPosts
+    .findByIdAndRemove(req.params.id)
     .exec()
     .then(blogPost => res.status(204).end())
     .catch(err => res.status(500).json({message: 'Internal server error'}));
